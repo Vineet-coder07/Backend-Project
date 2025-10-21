@@ -16,14 +16,14 @@ const playlistSchema=new Schema({
     description:{
         type:string,
     },
-    createdAt :{
-        type:Date,
+    videos:[{
+        type:Schema.Types.ObjectId,
+        ref:"Video",
+    }],
+    owner:{
+        type:Schema.Types.ObjectId,
+        ref:"User",
     },
-    updatedAt : {
-        type:Date,
-    },
-    owner_id : {
-        type:String,
-    }
+
 },{timestamps:true});
 export const playlistmodel=mongoose.model("Playlist",playlistSchema);

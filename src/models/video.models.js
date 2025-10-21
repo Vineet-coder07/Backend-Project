@@ -11,9 +11,11 @@
   owner_id string
 }*/
 import mongoose,{Schema} from "mongoose";
-const videoSchema=new Schema({
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
+const video=new Schema({
     videoFile:{
         type:String,
+        unique:true,
         required:true
     },
     thumbnail:{
@@ -44,5 +46,5 @@ const videoSchema=new Schema({
         ref:"User"
     }
 },{timestamps:true})
-
+videoSchema.plugin(mongooseAggregatePaginate);
 export const Video=mongoose.model("Video",videoSchema)

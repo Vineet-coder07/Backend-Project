@@ -15,6 +15,11 @@ users [icon: user, color: yellow]{
 import mongoose ,{Schema} from "mongoose";
 const userSchema =new Schema(
     {
+      user_id:{
+         type:String,
+         unique:true,
+         required:true,
+      },
          username:{
             type:String,
             required:true,
