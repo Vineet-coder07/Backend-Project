@@ -6,10 +6,14 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     //  todos for users
-   /* const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)*/
+   const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
     cb(null, file.fieldname + '-' + uniqueSuffix)
   }
 })
 
-export const upload = multer({
-     storage });
+export const upload = multer({ 
+    storage, // or just { dest: "./public/temp" }
+    limits: {
+        maxPartHeadersSize: 10000 // This increases the limit (default is 2048)
+    }
+});
