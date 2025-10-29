@@ -11,6 +11,7 @@ const errorHandler=(err,req,res,next)=>{
     const message=error.message || "Something went wrong"
     error=new ApiError(statusCode,message,error?.errors || [],err?.stack)
     const response ={
+        ...error,
         statusCode: error.statusCode,
         message: error.message,
         ...new ApiError(process.env.NODE_ENV === "development"? {stack:error.stack}:{})

@@ -1,32 +1,34 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { upload } from "./middlewares/multer.middleware.js";
+const app = express();
 
-const app=express();
-app.use(
-    cors({
-        origin : process.env.CORS_ORIGIN,
-        credentials:true
-    })
-)
+app.use(cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true
+}));
+app.use(upload.fields([
+    { name: "avatar", maxCount: 1 },
+    { name: "coverImage", maxCount: 1 }
+])); 
 
-// express common middlewares
-app.use(express.json({limit : '16kb'}))
-app.use(express.urlencoded({extended : true,limit:"16kb"}))
-app.use(express.static("public"))
-app.use(cookieParser())
-// import the routes
-import userRoutes from "./routes/user.routes.js";
-import {router} from "./routes/healthcheck.routes.js";
+// ✅ IMPORTANT: Parser limits BEFORE routes
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(express.static("public"));
+app.use(cookieParser());
+
+// ✅ Import routes AFTER common middlewares
+import Userrouter from "./routes/user.routes.js";
+import healthcheckRouter from "./routes/healthcheck.routes.js";
 import { errorHandler } from "./middlewares/error.middlewares.js";
-//routes
-app.use("/api/v1/healthcheck",router);
-app.use("/api/v1/users",userRoutes);
+
+// ✅ Use routes
+app.use("/api/v1/healthcheck", healthcheckRouter);
+app.use("/api/v1/users", Userrouter);
+
+// ✅ Error handler
 app.use(errorHandler);
 
-
-export {app};
-
-
-
-
+export { app };
