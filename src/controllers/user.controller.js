@@ -3,6 +3,26 @@ import{ApiResponse} from "../utils/ApiResponse.js";
 import {asyncHandler} from "../utils/asyncHandler.js";
 import { UploadonCloudinary ,deleteFromCloudinary} from "../utils/cloudinary.js";
 import {User} from "../models/user.models.js";
+import { validate } from "uuid";
+
+const generateAccessTokenAndRefreshToken=async(userId)=>{
+  try {
+    const user=await User.findById(userId)
+    if(!user){
+      throw  new ApiError(500,"User with this userid does't exit")
+    }
+    const Accesstoken=user.generateAccessToken
+    const Refreshtoken=user.generateRefreshToken
+    user.Refreshtoken=Refreshtoken
+    await user.save({validateBeforeSaave:false})
+    return {Accesstoken,Refreshtoken};
+  } catch (error) {
+    throw new ApiError(500,"Something went wrong with access and refresh tokens")
+  }
+
+
+
+}
 const registeruser = asyncHandler(async (req, res) => {
   console.log("----DEBUG----");
   console.log("REQ BODY:", req.body);
@@ -60,5 +80,46 @@ const registeruser = asyncHandler(async (req, res) => {
   } catch (error) {
     throw new ApiError(500,"Something went wrong while registering a user");
   }
+  if(avatarUpload){
+    await deleteFromCloudinary(avatarUpload.public_id)
+  }
+  if(coverUpload){
+    await deleteFromCloudinary(coverImage.public_id)
+  }
 });
-export{registeruser};
+
+const loginUser=asyncHandler(async (req,res)=>{
+  // get data from body
+  const {email,username,password}=req.body
+  //validation
+  if(!email){
+    throw new ApiError(400,"email is required")
+  }
+  const user=await User.findOne({
+    $or:[{username},{email}]
+  })
+  if(!user){
+    throw new ApiError(404,"User not found")
+  }
+  //validate passsword
+  const isPasswordCorrect=await user.isPasswordCorrect(password)
+  if(!isPasswordCorrect){
+    throw new ApiError(401,"Invalid creditials")
+  }
+   const {Accesstoken,Refreshtoken}=await generateAccessTokenAndRefreshToken(user._id)
+   const loggedUser=await User.findById(user._id).select("-password -refreshToken")
+   const options={
+    httponly:true,
+    secure:process.env.NODE_ENV === "production",
+   }
+   return res
+     .status(200)
+     .cookie("accessToken",Accesstoken ,options)
+     .json(new ApiResponse(200,
+      {user:loggedUser,Accesstoken,Refreshtoken},
+      "User logged Successfully"
+     ))
+
+
+})
+export{registeruser,loginUser};
