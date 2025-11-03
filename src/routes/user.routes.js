@@ -12,9 +12,9 @@
 
 
 import express from "express";
-import { registeruser } from "../controllers/user.controller.js";
+import { registeruser,logoutUser } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
-
+import  {verifyJWT} from "../middlewares/auth.middleware.js";
 const router = express.Router();
 
 router.post(
@@ -25,5 +25,8 @@ router.post(
   ]),
   registeruser
 );
+//secure routes
+// we can use multiple middlewares in between 1st middleware and final route
+router.route("/logout").post(verifyJWT,logoutUser)
 
 export default router;

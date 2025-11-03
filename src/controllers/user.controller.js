@@ -170,6 +170,22 @@ const refreshAccessToken=asyncHandler(async (req,res)=>{
 const logoutUser=asyncHandler(async (req,res)=>{
   await User.findByIdAndUpdate(
     // need to come back here after middleware
+    req.user._id,
+    {
+      $set:{
+        Refreshtoken:undefined,
+      }
+    },
+    {new:true}
   )
+  const options={
+    httponly:true,
+    secure:process.env.NODE_ENV==="production",
+  }
+  return res
+    .status(200)
+    .clearCookie("accessToken",options)
+    .clearCookie("refreshToken",options)
+    .json(new ApiResponse(200,{},"User logged out successfully"))
 })
-export{registeruser,loginUser,refreshAccessToken};
+export{registeruser,loginUser,refreshAccessToken,logoutUser};
