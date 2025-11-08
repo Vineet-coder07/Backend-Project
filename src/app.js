@@ -18,10 +18,12 @@ app.use(cookieParser());
 import Userrouter from "./routes/user.routes.js";
 import healthcheckRouter from "./routes/healthcheck.routes.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
+import  videoUploaded from "./routes/video.routes.js";
 
 // ✅ Use routes
 app.use("/api/v1/healthcheck", healthcheckRouter);
 app.use("/api/v1/users", Userrouter);
+
 
 // ✅ Error handler
 app.use(errorHandler);
