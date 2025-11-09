@@ -1,6 +1,6 @@
 
 import mongoose, {isValidObjectId} from "mongoose"
-import {Video} from "../models/video.model.js"
+import {Video} from "../models/video.models.js";
 import {User} from "../models/user.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
@@ -22,7 +22,14 @@ const publishAVideo = asyncHandler(async (req, res) => {
     if(!description || description.trim() === ""){
         throw new ApiError(400,"description is required");
     }
+    const existedVideo=await Video.findOne({videoFile});
+    if(existedVideo){
+        throw new ApiError(400,"Video already exist in the database")
+    }
+    const videolocalpath=req.files?.videoFile?.[0]?.path;
+    const thumbnaillocalpath=req.files?.videoFile?.[0]?.path;
     
+
 })
 
 const getVideoById = asyncHandler(async (req, res) => {
